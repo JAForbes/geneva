@@ -31,8 +31,8 @@ var validate = function( config, model){
 
 	properties.forEach(function(property){
 		var target = model[property]
-		if( type(target) in complex_type){
 
+		if( !config[property].asValue && type(target) in complex_type){
 			if( Array.isArray(target) ){
 				errors[property] = target
 					.map(function( val, i ){
@@ -79,9 +79,9 @@ var configure = function( info, model ){
 	var config = {}
 	var properties = Object.keys(info)
 	properties.forEach(function( property ){
+		var asValue = info[property].asValue
 
-		var config_element = { name: info[property].name, validations: info[property].validations }
-		if( type(model[property]) in complex_type ){
+		if( !asValue && type(model[property]) in complex_type ){
 
 			var container = model[property]
 
@@ -89,7 +89,7 @@ var configure = function( info, model ){
 				config[property] = []
 
 				for(var i = 0; i < container.length; i++){
-					config[property].push( config_element )
+					config[property].push( info[property] )
 				}
 
 			} else {
@@ -97,13 +97,14 @@ var configure = function( info, model ){
 
 				Object.keys( container )
 					.forEach(function( sub_property ){
-						config[property][sub_property] = config_element
+						config[property][sub_property] = info[property]
 					})
 			}
 
 
 		} else {
-			config[property] = config_element
+
+			config[property] = info[property]
 		}
 	})
 	return config;
@@ -130,6 +131,22 @@ geneva.required = function(){
 			return typeof value !== "undefined"
 		},
 		message: "is required"
+	}
+}
+
+geneva.nTruthy = function(n){
+	return {
+		fn: function( container ){
+			var nTruthy =  (
+				Array.isArray( container ) ?
+					container.filter(Boolean)
+				:
+					Object.keys(container).filter( function(key) { return container[key] })
+			).length
+
+			return nTruthy >= n
+		},
+		message: "Please ensure at least "+n+" is selected"
 	}
 }
 

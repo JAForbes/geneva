@@ -10,7 +10,17 @@ function model(){
 			trenching: 2,
 			boring: undefined
 		},
-		array: [ 1, 2, 3 ]
+		array: [ 1, 2, 3 ],
+		valid_container: {
+			CBD: true,
+			Suburban: false,
+			Rural: false
+		},
+		invalid_container: {
+			CBD: false,
+			Suburban: false,
+			Rural: false
+		}
 	}
 }
 
@@ -19,7 +29,9 @@ function configure(){
 		a: { name: "A", validations: [G.between(1,10)] },
 		b: { name: function(prop){ return "B"+prop }, validations: [G.required()] },
 		rates: { name: "Rates", validations: [ G.required(), G.between(1,10)] },
-		array: { name: "Array", validations: [G.between(1,10)]}
+		array: { name: "Array", validations: [G.between(1,10)]},
+		valid_container: { name: "Valid Container", validations: [G.nTruthy(1)], asValue: true },
+		invalid_container: { name: "Invalid Container", validations: [G.nTruthy(1)], asValue: true }
 	}, model() )
 }
 
@@ -49,6 +61,10 @@ describe("Configure", function(){
 		var config = configure()
 
 		assert( config.b.name instanceof Function )
+	})
+	it("can optionally treat a container (Array, Object) as a single value", function(){
+		var config = configure()
+		assert( config.valid_container.asValue )
 	})
 })
 
@@ -83,8 +99,20 @@ describe("Validate", function(){
 		var config = configure()
 		var m = model()
 
-		var error = G.validate( config, m)
-		console.log(JSON.stringify(error,null,2))
-		assert.equal(error.all.length, 3)
+		var errors = G.validate( config, m)
+		assert(errors.all.length)
+	})
+	it("can validate a container as a single value", function(){
+		var config = configure()
+		var m = model()
+
+		var errors = G.validate( config, m)
+
+		assert.equal(
+			errors.valid_container.errors.length, 0
+		)
+		assert.equal(
+			errors.invalid_container.errors.length, 1
+		)
 	})
 })
