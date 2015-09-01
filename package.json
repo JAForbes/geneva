@@ -1,0 +1,14 @@
+{
+  "name": "geneva",
+  "version": "0.0.0",
+  "description": "Model validation that works in any regime",
+  "main": "geneva.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "james.a.forbes@gmail.com <=> (http://james-forbes.com)",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^2.3.0"
+  }
+}
