@@ -20,8 +20,20 @@ function model(){
 			CBD: false,
 			Suburban: false,
 			Rural: false
-		}
+		},
+		watched: 2,
+		watcher: undefined
 	}
+}
+
+//hacky theoretical validator for cross referencing
+var corresponding = {
+	fn: function(value, name, config, model){
+		if( typeof model.watched != "undefined"){
+			return value
+		}
+	},
+	message: "You must specify watcher because you specified watched"
 }
 
 function configure(){
@@ -31,7 +43,8 @@ function configure(){
 		rates: { name: "Rates", validations: [ G.required(), G.between(1,10)] },
 		array: { name: "Array", validations: [G.between(1,10)]},
 		valid_container: { name: "Valid Container", validations: [G.nTruthy(1)], asValue: true },
-		invalid_container: { name: "Invalid Container", validations: [G.nTruthy(1)], asValue: true }
+		invalid_container: { name: "Invalid Container", validations: [G.nTruthy(1)], asValue: true },
+		watcher: { name: "Watcher proving", validations: [corresponding] }
 	}, model() )
 }
 
@@ -114,5 +127,12 @@ describe("Validate", function(){
 		assert.equal(
 			errors.invalid_container.errors.length, 1
 		)
+	})
+	it("passes in several parameters to allow for complex cross referencing", function(){
+		var config = configure()
+		var m = model()
+
+		var errors = G.validate( config, m)
+		assert.equal( errors.watcher.errors.length, 1)
 	})
 })

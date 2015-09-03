@@ -1,9 +1,9 @@
-var validateLeaf = function(config, name, value){
+var validateLeaf = function(config, name, value, model){
 	return config.validations
 		.reduce(function(errors, validator ){
 			var passed = false;
 			try {
-				passed = validator.fn(value, name)
+				passed = validator.fn(value, name, config, model)
 			} catch (e) {
 
 			}
@@ -16,10 +16,10 @@ var validateLeaf = function(config, name, value){
 		},[])
 }
 
-var error = function( config, name, value ){
+var error = function( config, name, value, model ){
 	return {
 		name: config.name instanceof Function ? config.name(name) : config.name,
-		errors: validateLeaf( config, name, value ),
+		errors: validateLeaf( config, name, value, model ),
 		property: name
 	}
 }
@@ -36,7 +36,7 @@ var validate = function( config, model){
 			if( Array.isArray(target) ){
 				errors[property] = target
 					.map(function( val, i ){
-						var e = error( config[property][i], i, val )
+						var e = error( config[property][i], i, val, model )
 						flattened.push( e )
 						return e
 					})
@@ -50,7 +50,8 @@ var validate = function( config, model){
 						sub[sub_property] = error(
 							config[property][sub_property],
 							sub_property,
-							target[sub_property]
+							target[sub_property],
+							model
 						)
 						flattened.push( sub[sub_property] )
 						return sub
@@ -60,7 +61,7 @@ var validate = function( config, model){
 			}
 
 		} else {
-			errors[property] = error( config[property], property, model[property])
+			errors[property] = error( config[property], property, model[property], model)
 			flattened.push( errors[property] )
 		}
 
