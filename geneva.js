@@ -3,7 +3,7 @@ var validateLeaf = function(config, name, value){
 		.reduce(function(errors, validator ){
 			var passed = false;
 			try {
-				passed = validator.fn(value)
+				passed = validator.fn(value, name)
 			} catch (e) {
 
 			}
