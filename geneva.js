@@ -128,7 +128,7 @@ geneva.between = function(min,max){
 geneva.required = function(){
 	return {
 		fn: function(value){
-			return typeof value !== "undefined"
+			return typeof value !== "undefined" && value != ""
 		},
 		message: "is required"
 	}
