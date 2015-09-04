@@ -1,9 +1,9 @@
-var validateLeaf = function(config, name, value, model){
+var validateLeaf = function(config, key, value, model){
 	return config.validations
 		.reduce(function(errors, validator ){
 			var passed = false;
 			try {
-				passed = validator.fn(value, name, config, model)
+				passed = validator.fn(value, key, config, model)
 			} catch (e) {
 
 			}
@@ -16,11 +16,11 @@ var validateLeaf = function(config, name, value, model){
 		},[])
 }
 
-var error = function( config, name, value, model ){
+var error = function( config, key, value, model ){
 	return {
-		name: config.name instanceof Function ? config.name(name) : config.name,
-		errors: validateLeaf( config, name, value, model ),
-		property: name
+		owner: config.owner instanceof Function ? config.owner(key) : config.owner,
+		messages: validateLeaf( config, key, value, model ),
+		property: key
 	}
 }
 
@@ -32,7 +32,7 @@ var validate = function( config, model){
 	properties.forEach(function(property){
 		var target = model[property]
 
-		if( !config[property].asValue && type(target) in complex_type){
+		if( !config[property].asGroup && type(target) in complex_type){
 			if( Array.isArray(target) ){
 				errors[property] = target
 					.map(function( val, i ){
@@ -66,7 +66,7 @@ var validate = function( config, model){
 		}
 
 	})
-	errors.all = flattened.filter( function(e){ return e.errors.length })
+	errors.all = flattened.filter( function(e){ return e.messages.length })
 	return errors
 }
 
@@ -80,9 +80,9 @@ var configure = function( info, model ){
 	var config = {}
 	var properties = Object.keys(info)
 	properties.forEach(function( property ){
-		var asValue = info[property].asValue
+		var asGroup = info[property].asGroup
 
-		if( !asValue && type(model[property]) in complex_type ){
+		if( !asGroup && type(model[property]) in complex_type ){
 
 			var container = model[property]
 

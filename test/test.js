@@ -38,13 +38,13 @@ var corresponding = {
 
 function configure(){
 	return G.configure({
-		a: { name: "A", validations: [G.between(1,10)] },
-		b: { name: function(prop){ return "B"+prop }, validations: [G.required()] },
-		rates: { name: "Rates", validations: [ G.required(), G.between(1,10)] },
-		array: { name: "Array", validations: [G.between(1,10)]},
-		valid_container: { name: "Valid Container", validations: [G.nTruthy(1)], asValue: true },
-		invalid_container: { name: "Invalid Container", validations: [G.nTruthy(1)], asValue: true },
-		watcher: { name: "Watcher proving", validations: [corresponding] }
+		a: { owner: "A", validations: [G.between(1,10)] },
+		b: { owner: function(prop){ return "B"+prop }, validations: [G.required()] },
+		rates: { owner: "Rates", validations: [ G.required(), G.between(1,10)] },
+		array: { owner: "Array", validations: [G.between(1,10)]},
+		valid_container: { owner: "Valid Container", validations: [G.nTruthy(1)], asGroup: true },
+		invalid_container: { owner: "Invalid Container", validations: [G.nTruthy(1)], asGroup: true },
+		watcher: { owner: "Watcher proving", validations: [corresponding] }
 	}, model() )
 }
 
@@ -68,16 +68,16 @@ describe("Configure", function(){
 	it("accepts a string as a name in the property config", function(){
 		var config = configure()
 
-		assert.equal( config.a.name, "A")
+		assert.equal( config.a.owner, "A")
 	})
 	it("accepts a function as a name in the property config", function(){
 		var config = configure()
 
-		assert( config.b.name instanceof Function )
+		assert( config.b.owner instanceof Function )
 	})
 	it("can optionally treat a container (Array, Object) as a single value", function(){
 		var config = configure()
-		assert( config.valid_container.asValue )
+		assert( config.valid_container.asGroup )
 	})
 })
 
@@ -88,9 +88,9 @@ describe("Validate", function(){
 
 		var errors = G.validate( config, m )
 
-		assert.equal(errors.a.errors.length, 1)
-		assert.equal(errors.array[0].errors.length, 1)
-		assert.equal(errors.rates.boring.errors.length, 2)
+		assert.equal(errors.a.messages.length, 1)
+		assert.equal(errors.array[0].messages.length, 1)
+		assert.equal(errors.rates.boring.messages.length, 2)
 	})
 	it("creates multiple errors per failed property", function(){
 		var config = configure()
@@ -98,7 +98,7 @@ describe("Validate", function(){
 
 		var errors = G.validate( config, m )
 
-		assert.equal(errors.rates.boring.errors.length, 2)
+		assert.equal(errors.rates.boring.messages.length, 2)
 	})
 	it("creates a generated name if the config used a name function", function(){
 		var config = configure()
@@ -106,7 +106,7 @@ describe("Validate", function(){
 
 		var errors = G.validate( config, m )
 
-		assert.equal(errors.b.name, "Bb")
+		assert.equal(errors.b.owner, "Bb")
 	})
 	it("creates a flat list of errors", function(){
 		var config = configure()
@@ -122,10 +122,10 @@ describe("Validate", function(){
 		var errors = G.validate( config, m)
 
 		assert.equal(
-			errors.valid_container.errors.length, 0
+			errors.valid_container.messages.length, 0
 		)
 		assert.equal(
-			errors.invalid_container.errors.length, 1
+			errors.invalid_container.messages.length, 1
 		)
 	})
 	it("passes in several parameters to allow for complex cross referencing", function(){
@@ -133,6 +133,6 @@ describe("Validate", function(){
 		var m = model()
 
 		var errors = G.validate( config, m)
-		assert.equal( errors.watcher.errors.length, 1)
+		assert.equal( errors.watcher.messages.length, 1)
 	})
 })
