@@ -4,14 +4,14 @@ var assert = require("assert")
 function model(){
 	return {
 		a: 100,
-		b: 3,
-		swap: 4,
+		b: 5,
+		swap: -4,
 		rates: {
 			proving: 4,
 			trenching: 2,
 			boring: undefined
 		},
-		array: [ 1, 2, 3 ],
+		array: [ -2, 2, 3 ],
 		valid_container: {
 			CBD: true,
 			Suburban: false,
@@ -41,9 +41,9 @@ function configure(){
 	return G.configure({
 		a: { owner: "A", validations: [G.between(1,10)] },
 		b: { owner: function(prop){ return "B"+prop }, validations: [G.required()] },
-		swap: { owner: "Swap", validations: [G.between(10,1)] },
+		swap: { owner: "Swap", validations: [G.between(11,0)] },
 		rates: { owner: "Rates", validations: [ G.required(), G.between(1,10)] },
-		array: { owner: "Array", validations: [G.between(1,10)]},
+		array: { owner: "Array", validations: [G.between(0,11)]},
 		valid_container: { owner: "Valid Container", validations: [G.nTruthy(1)], asGroup: true },
 		invalid_container: { owner: "Invalid Container", validations: [G.nTruthy(1)], asGroup: true },
 		watcher: { owner: "Watcher proving", validations: [corresponding] }
@@ -145,8 +145,8 @@ describe("Helpers", function(){
 			var config = configure()
 			var m = model()
 
-			var errors = G.validate( config, m)
-			assert.equal( errors.swap.messages.length, 0)
+			var errors = G.validate( config, m )
+			assert.equal( errors.swap.messages.length, 1)
 		})
 	})
 })
