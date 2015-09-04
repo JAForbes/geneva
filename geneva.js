@@ -117,11 +117,11 @@ var geneva = {
 }
 
 geneva.between = function(min,max){
-	return {
+	return min > max ? geneva.between(max, min): {
 		fn: function(value){
 			return value > min && value < max
 		},
-		message: "should be between " + min + " and " + max
+		message: "should be between " + (min +1) + " and " + (max-1)
 	}
 
 

@@ -5,6 +5,7 @@ function model(){
 	return {
 		a: 100,
 		b: 3,
+		swap: 4,
 		rates: {
 			proving: 4,
 			trenching: 2,
@@ -40,6 +41,7 @@ function configure(){
 	return G.configure({
 		a: { owner: "A", validations: [G.between(1,10)] },
 		b: { owner: function(prop){ return "B"+prop }, validations: [G.required()] },
+		swap: { owner: "Swap", validations: [G.between(10,1)] },
 		rates: { owner: "Rates", validations: [ G.required(), G.between(1,10)] },
 		array: { owner: "Array", validations: [G.between(1,10)]},
 		valid_container: { owner: "Valid Container", validations: [G.nTruthy(1)], asGroup: true },
@@ -134,5 +136,17 @@ describe("Validate", function(){
 
 		var errors = G.validate( config, m)
 		assert.equal( errors.watcher.messages.length, 1)
+	})
+})
+
+describe("Helpers", function(){
+	describe("between", function(){
+		it("swaps min and max if min > max", function(){
+			var config = configure()
+			var m = model()
+
+			var errors = G.validate( config, m)
+			assert.equal( errors.swap.messages.length, 0)
+		})
 	})
 })
